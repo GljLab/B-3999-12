@@ -89,18 +89,18 @@
                 <div>
                   <div class="text-sm text-gray-500 mb-2">分享统计</div>
                   <div class="flex items-center gap-4 mb-2">
-                    <span class="text-2xl font-bold text-green-600">{{ stats.shareStats?.total || 0 }}</span>
+                    <span class="text-2xl font-bold text-green-600">{{ stats.totalShareCount || 0 }}</span>
                     <span class="text-sm text-gray-400">总分享次数</span>
                   </div>
                   <div class="flex gap-3">
                     <el-tag type="success" effect="plain">
-                      社区 {{ stats.shareStats?.community || 0 }}
+                      社区 {{ stats.communityShares || 0 }}
                     </el-tag>
                     <el-tag type="warning" effect="plain">
-                      二维码 {{ stats.shareStats?.qrcode || 0 }}
+                      二维码 {{ stats.qrcodeShares || 0 }}
                     </el-tag>
                     <el-tag type="danger" effect="plain">
-                      海报 {{ stats.shareStats?.poster || 0 }}
+                      海报 {{ stats.posterShares || 0 }}
                     </el-tag>
                   </div>
                 </div>
@@ -108,12 +108,12 @@
                 <div>
                   <div class="text-sm text-gray-500 mb-2">浏览统计</div>
                   <div class="flex items-center gap-4 mb-2">
-                    <span class="text-2xl font-bold text-blue-600">{{ stats.viewStats?.total || 0 }}</span>
+                    <span class="text-2xl font-bold text-blue-600">{{ stats.totalViewCount || 0 }}</span>
                     <span class="text-sm text-gray-400">总浏览量</span>
                   </div>
                   <div class="flex gap-3">
                     <el-tag type="primary" effect="plain">
-                      分享浏览 {{ stats.viewStats?.shareViews || 0 }}
+                      分享浏览 {{ stats.shareViewCount || 0 }}
                     </el-tag>
                   </div>
                 </div>
@@ -128,7 +128,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import certificateApi from '@/api'
+import { certificateApi } from '@/api'
 
 const loading = ref(true)
 const stats = ref(null)

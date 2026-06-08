@@ -6,12 +6,14 @@ import com.agritrace.entity.Product;
 import com.agritrace.entity.ProductBatch;
 import com.agritrace.entity.ProductSpec;
 import com.agritrace.entity.TracingCode;
+import com.agritrace.entity.User;
 import com.agritrace.repository.HotProductRepository;
 import com.agritrace.repository.LogisticsRepository;
 import com.agritrace.repository.ProductBatchRepository;
-import com.agritrace.repository.ProductRepository;
 import com.agritrace.repository.ProductSpecRepository;
+import com.agritrace.repository.ProductRepository;
 import com.agritrace.repository.TracingCodeRepository;
+import com.agritrace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ public class PublicController {
     @Autowired private LogisticsRepository logisticsRepository;
     @Autowired private ProductBatchRepository batchRepository;
     @Autowired private ProductSpecRepository specRepository;
+    @Autowired private UserRepository userRepository;
 
     @GetMapping("/hot")
     public Result<?> getHotProducts() {
@@ -91,6 +94,16 @@ public class PublicController {
         data.put("traceInfo", tc);
         data.put("batch", batch);
         data.put("spec", spec);
+        if (p != null && p.getFarmerId() != null) {
+            User farmer = userRepository.findById(p.getFarmerId()).orElse(null);
+            if (farmer != null) {
+                Map<String, Object> farmerInfo = new HashMap<>();
+                farmerInfo.put("id", farmer.getId());
+                farmerInfo.put("username", farmer.getUsername());
+                farmerInfo.put("realName", farmer.getRealName());
+                data.put("farmer", farmerInfo);
+            }
+        }
         return Result.success(data);
     }
     

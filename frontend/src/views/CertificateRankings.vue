@@ -70,7 +70,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import certificateApi from '@/api'
+import { certificateApi } from '@/api'
 
 const activeTab = ref('products')
 const productLoading = ref(false)

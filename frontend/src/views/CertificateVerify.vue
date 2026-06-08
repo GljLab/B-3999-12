@@ -29,7 +29,7 @@
 
       <div v-else-if="verifyResult && verifyResult.valid">
         <el-card shadow="never" class="rounded-2xl mb-6">
-          <el-result icon="success" title="验证通过" sub-title="该证书为有效溯源证书">
+          <el-result icon="success" title="验证通过" :sub-title="verifyResult.message || '该证书为有效溯源证书'">
             <template #extra>
               <el-tag type="success" size="large" effect="dark">✓ 证书有效</el-tag>
             </template>
@@ -45,12 +45,12 @@
 
           <el-descriptions :column="1" border>
             <el-descriptions-item label="证书编号">
-              <span class="font-mono text-green-700 font-bold">{{ verifyResult.certificateNo }}</span>
+              <span class="font-mono text-green-700 font-bold">{{ certData.certificateNo }}</span>
             </el-descriptions-item>
-            <el-descriptions-item label="产品名称">{{ verifyResult.productName }}</el-descriptions-item>
-            <el-descriptions-item label="产地">{{ verifyResult.origin }}</el-descriptions-item>
-            <el-descriptions-item label="农户">{{ verifyResult.farmer }}</el-descriptions-item>
-            <el-descriptions-item label="批次信息">{{ verifyResult.batchInfo || '暂无' }}</el-descriptions-item>
+            <el-descriptions-item label="产品名称">{{ certData.productName }}</el-descriptions-item>
+            <el-descriptions-item label="产地">{{ certData.productOrigin }}</el-descriptions-item>
+            <el-descriptions-item label="农户">{{ certData.farmerName }}</el-descriptions-item>
+            <el-descriptions-item label="批次信息">{{ certData.batchNo || '暂无' }}</el-descriptions-item>
             <el-descriptions-item label="数字签名状态">
               <el-tag v-if="verifyResult.signatureValid" type="success" effect="dark">✓ 签名有效</el-tag>
               <el-tag v-else type="danger" effect="dark">⚠ 签名无效</el-tag>
@@ -69,12 +69,12 @@
             <el-timeline-item
               v-for="(item, idx) in logisticsTimeline"
               :key="idx"
-              :timestamp="item.time"
+              :timestamp="item.recordedAt"
               color="#10b981"
               size="large"
             >
               <div class="font-semibold text-gray-800">{{ item.location }}</div>
-              <div class="text-green-600">{{ item.status }}</div>
+              <div class="text-green-600">{{ item.statusDesc }}</div>
             </el-timeline-item>
           </el-timeline>
         </el-card>
@@ -88,21 +88,21 @@
 
           <div class="grid grid-cols-3 gap-4 text-center">
             <div class="bg-blue-50 rounded-xl p-4">
-              <div class="text-2xl font-bold text-blue-600">{{ verifyResult.viewCount || 0 }}</div>
+              <div class="text-2xl font-bold text-blue-600">{{ certData.viewCount || 0 }}</div>
               <div class="text-sm text-gray-500">浏览</div>
             </div>
             <div class="bg-green-50 rounded-xl p-4">
-              <div class="text-2xl font-bold text-green-600">{{ verifyResult.shareCount || 0 }}</div>
+              <div class="text-2xl font-bold text-green-600">{{ certData.shareCount || 0 }}</div>
               <div class="text-sm text-gray-500">分享</div>
             </div>
             <div class="bg-purple-50 rounded-xl p-4">
-              <div class="text-2xl font-bold text-purple-600">{{ verifyResult.verifyCount || 0 }}</div>
+              <div class="text-2xl font-bold text-purple-600">{{ certData.verifyCount || 0 }}</div>
               <div class="text-sm text-gray-500">验证</div>
             </div>
           </div>
         </el-card>
 
-        <div v-if="verifyResult.traceCode" class="text-center">
+        <div v-if="certData.traceCode" class="text-center">
           <el-button type="primary" link @click="goToTrace" class="text-lg">
             查看完整溯源信息 →
           </el-button>
@@ -136,12 +136,15 @@ const certificateNo = ref('')
 const verifying = ref(false)
 const verifyResult = ref(null)
 
+const certData = computed(() => {
+  return verifyResult.value?.certificate || {}
+})
+
 const logisticsTimeline = computed(() => {
-  if (!verifyResult.value?.logisticsSummary) return []
+  const summary = certData.value.logisticsSummary
+  if (!summary) return []
   try {
-    const data = typeof verifyResult.value.logisticsSummary === 'string'
-      ? JSON.parse(verifyResult.value.logisticsSummary)
-      : verifyResult.value.logisticsSummary
+    const data = typeof summary === 'string' ? JSON.parse(summary) : summary
     return Array.isArray(data) ? data : []
   } catch {
     return []
@@ -176,8 +179,8 @@ const handleVerify = async () => {
 }
 
 const goToTrace = () => {
-  if (verifyResult.value?.traceCode) {
-    router.push(`/trace/${verifyResult.value.traceCode}`)
+  if (certData.value.traceCode) {
+    router.push(`/trace/${certData.value.traceCode}`)
   }
 }
 

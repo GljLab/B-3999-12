@@ -43,7 +43,7 @@
           <div v-else class="space-y-3">
             <div
               v-for="(item, idx) in selectedProducts"
-              :key="item.traceCode"
+              :key="item.traceCodeId"
               class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-green-200 transition"
             >
               <div class="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200">
@@ -100,7 +100,7 @@
                 ]"
               >
                 <div :class="['w-full h-28 rounded-lg mb-3 flex items-center justify-center text-2xl', tpl.previewBg]">
-                  <span :class="tpl.previewIcon">{{ tpl.previewEmoji }}</span>
+                  {{ tpl.previewEmoji }}
                 </div>
                 <div class="text-center">
                   <div class="font-bold text-gray-800">{{ tpl.label }}</div>
@@ -113,7 +113,7 @@
           <div v-else class="space-y-4">
             <div
               v-for="(item, idx) in selectedProducts"
-              :key="item.traceCode"
+              :key="item.traceCodeId"
               class="p-4 bg-gray-50 rounded-xl border border-gray-100"
             >
               <div class="font-bold text-gray-800 mb-3">{{ item.product.productName }}</div>
@@ -159,7 +159,7 @@
           <div class="space-y-4">
             <div
               v-for="(item, idx) in selectedProducts"
-              :key="item.traceCode"
+              :key="item.traceCodeId"
               class="p-4 bg-gray-50 rounded-xl border border-gray-100"
             >
               <div class="flex items-center gap-3 mb-3">
@@ -170,9 +170,7 @@
               <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-inner">
                 <component
                   :is="getTemplateComponent(item.template || unifiedTemplate)"
-                  :product="item.product"
-                  :trace-code="item.traceCode"
-                  :template="item.template || unifiedTemplate"
+                  :cert="buildPreviewCert(item)"
                 />
               </div>
             </div>
@@ -192,9 +190,7 @@
         <div v-if="previewItem" class="bg-white rounded-lg border border-gray-200 p-8">
           <component
             :is="getTemplateComponent(previewItem.template || unifiedTemplate)"
-            :product="previewItem.product"
-            :trace-code="previewItem.traceCode"
-            :template="previewItem.template || unifiedTemplate"
+            :cert="buildPreviewCert(previewItem)"
           />
         </div>
         <div class="flex justify-center gap-4 mt-4" v-if="selectedProducts.length > 1">
@@ -268,6 +264,40 @@ const goToStep = (step) => {
   currentStep.value = step
 }
 
+const buildPreviewCert = (item) => {
+  const p = item.product
+  const b = item.batch
+  const logisticsList = item.logistics || []
+  return {
+    certificateNo: '预览-' + Date.now(),
+    productName: p.productName,
+    productCategory: p.category,
+    productOrigin: p.origin,
+    productDescription: p.description,
+    productImageUrl: p.imageUrl,
+    harvestDate: p.harvestDate,
+    farmerName: item.farmerName || '',
+    farmPhotoUrl: p.farmPhotoUrl || '',
+    brandIntro: p.brandIntro || '',
+    brandLogoUrl: p.brandLogoUrl || '',
+    batchNo: b ? b.batchNo : '',
+    productionDate: b ? b.productionDate : '',
+    qualityGrade: b ? b.qualityGrade : '',
+    logisticsSummary: JSON.stringify(logisticsList.map(l => ({
+      location: l.location,
+      statusDesc: l.statusDesc,
+      recordedAt: l.recordedAt
+    }))),
+    traceCode: item.traceCode,
+    digitalSignature: '预览签名',
+    viewCount: 0,
+    shareCount: 0,
+    verifyCount: 0,
+    templateType: item.template || unifiedTemplate.value,
+    createdAt: new Date().toISOString()
+  }
+}
+
 const queryAndAdd = async () => {
   const code = traceCodeInput.value.trim()
   if (!code) {
@@ -281,12 +311,20 @@ const queryAndAdd = async () => {
   querying.value = true
   try {
     const res = await api.get(`/public/trace/${code}`)
+    const data = res.data
+    const traceInfo = data.traceInfo || {}
+    let farmerName = ''
+    if (data.farmer) {
+      farmerName = data.farmer.realName || data.farmer.username || ''
+    }
     selectedProducts.push({
+      traceCodeId: traceInfo.id,
       traceCode: code,
-      product: res.data.product,
-      batch: res.data.batch,
-      logistics: res.data.logistics,
-      spec: res.data.spec,
+      product: data.product,
+      batch: data.batch,
+      logistics: data.logistics || [],
+      spec: data.spec,
+      farmerName: farmerName,
       template: templateMode.value === 'unified' ? unifiedTemplate.value : 'CLASSIC'
     })
     traceCodeInput.value = ''
@@ -314,17 +352,15 @@ const handleGenerate = async () => {
       const item = selectedProducts[0]
       const tplKey = item.template || unifiedTemplate.value
       await certificateApi.generate({
-        traceCode: item.traceCode,
-        productId: item.product.id,
-        template: tplKey
+        traceCodeId: item.traceCodeId,
+        templateType: tplKey
       })
     } else {
-      const items = selectedProducts.map(item => ({
-        traceCode: item.traceCode,
-        productId: item.product.id,
-        template: item.template || unifiedTemplate.value
+      const batchItems = selectedProducts.map(item => ({
+        traceCodeId: item.traceCodeId,
+        templateType: item.template || unifiedTemplate.value
       }))
-      await certificateApi.batchGenerate({ items })
+      await certificateApi.batchGenerate({ batchItems })
     }
     ElMessage.success('证书生成成功！')
     router.push('/certificates')
