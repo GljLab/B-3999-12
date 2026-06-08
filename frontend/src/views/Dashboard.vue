@@ -5,6 +5,7 @@
       <div class="flex space-x-4">
         <el-input v-model="traceCode" placeholder="请输入溯源码 (如: TRC-AKAPPLE-231015-0001A)" size="large" class="max-w-lg shadow-sm" clearable @keyup.enter="queryTrace" />
         <el-button type="primary" size="large" @click="queryTrace" :loading="tracing">溯源查询</el-button>
+        <el-button v-if="traceResult" type="success" size="large" @click="generateCert" plain>📜 生成溯源证书</el-button>
       </div>
 
       <div v-if="traceResult" class="mt-8">
@@ -130,8 +131,10 @@ import api from '@/api'
 import { ElMessage } from 'element-plus'
 import { Picture } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user'
+import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
+const router = useRouter()
 
 const traceCode = ref('')
 const tracing = ref(false)
@@ -186,8 +189,12 @@ const getCommunityStats = async () => {
     const res = await api.get('/admin/community/stats')
     communityStats.value = res.data
   } catch (e) {
-    // silently fail
   }
+}
+
+const generateCert = () => {
+  if (!traceCode.value.trim()) return
+  router.push(`/certificate/generate?traceCode=${traceCode.value.trim()}`)
 }
 
 onMounted(() => {

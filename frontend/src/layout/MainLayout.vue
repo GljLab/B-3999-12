@@ -17,6 +17,18 @@
         <router-link v-if="userStore.token" to="/my-interactions" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
           我的互动
         </router-link>
+        <router-link v-if="userStore.token" to="/certificates" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
+          我的证书
+        </router-link>
+        <router-link to="/certificate-verify" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
+          证书验证
+        </router-link>
+        <router-link to="/certificate-rankings" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
+          证书排行榜
+        </router-link>
+        <router-link v-if="['FARMER', 'SYS_ADMIN'].includes(userStore.role)" to="/farmer-certificates" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
+          产品证书数据
+        </router-link>
         <router-link v-if="['FARMER', 'SYS_ADMIN'].includes(userStore.role)" to="/products" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
           农产品管理
         </router-link>
@@ -34,6 +46,9 @@
         </router-link>
         <router-link v-if="userStore.role === 'SYS_ADMIN'" to="/smart-tagging" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
           智能标注
+        </router-link>
+        <router-link v-if="userStore.role === 'SYS_ADMIN'" to="/certificate-stats" class="block px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors" active-class="bg-green-50 text-green-600 border-r-4 border-green-600">
+          证书统计
         </router-link>
       </nav>
       <div class="p-4 border-t flex flex-col">

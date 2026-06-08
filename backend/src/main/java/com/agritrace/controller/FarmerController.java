@@ -99,6 +99,15 @@ public class FarmerController {
         if (product.getImageUrl() != null) {
             existingProduct.setImageUrl(product.getImageUrl());
         }
+        if (product.getFarmPhotoUrl() != null) {
+            existingProduct.setFarmPhotoUrl(product.getFarmPhotoUrl());
+        }
+        if (product.getBrandIntro() != null) {
+            existingProduct.setBrandIntro(product.getBrandIntro());
+        }
+        if (product.getBrandLogoUrl() != null) {
+            existingProduct.setBrandLogoUrl(product.getBrandLogoUrl());
+        }
 
         productRepository.save(existingProduct);
         return Result.success(existingProduct);

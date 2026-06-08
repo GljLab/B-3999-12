@@ -127,6 +127,12 @@
         <div class="text-center text-sm text-gray-400 pt-4">
           <p>溯源码: {{ traceCode }} | 查询时间: {{ queryTime }}</p>
         </div>
+
+        <div v-if="traceResult" class="mt-6 text-center">
+          <el-button type="primary" size="large" @click="generateCertificate" :icon="Stamp">
+            生成溯源证书
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -136,7 +142,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api'
-import { Loading, Warning, Picture, Money, InfoFilled, Document, Tickets, Van } from '@element-plus/icons-vue'
+import { Loading, Warning, Picture, Money, InfoFilled, Document, Tickets, Van, Stamp } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -164,6 +170,10 @@ const getQualityTagType = (grade) => {
 
 const goHome = () => {
   router.push('/')
+}
+
+const generateCertificate = () => {
+  router.push(`/certificate/generate?traceCode=${traceCode.value}`)
 }
 
 const queryTrace = async () => {

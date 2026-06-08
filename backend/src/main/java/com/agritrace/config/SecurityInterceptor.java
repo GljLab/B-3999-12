@@ -25,6 +25,18 @@ public class SecurityInterceptor implements HandlerInterceptor {
         if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register") || path.startsWith("/api/public") || path.startsWith("/api/trace/query")) {
             return true;
         }
+        if (path.startsWith("/api/certificate/verify/") && "GET".equals(method)) {
+            return true;
+        }
+        if (path.startsWith("/api/certificate/rankings") && "GET".equals(method)) {
+            return true;
+        }
+        if (path.matches("^/api/certificate/\\d+$") && "GET".equals(method)) {
+            return true;
+        }
+        if (path.startsWith("/api/certificate/product/") && path.endsWith("/count") && "GET".equals(method)) {
+            return true;
+        }
         if (path.startsWith("/api/community/posts") && "GET".equals(method)) {
             return true;
         }

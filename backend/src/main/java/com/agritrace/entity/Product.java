@@ -17,6 +17,10 @@ public class Product {
     private String description;
     private LocalDate harvestDate;
     private String imageUrl;
+    private String farmPhotoUrl;
+    @Column(columnDefinition = "TEXT")
+    private String brandIntro;
+    private String brandLogoUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
